@@ -13,5 +13,6 @@ struct Polygon
         void set(std::vector<std::tuple<float, float, float>>, std::tuple<int, int, int>); // Set both coordinates and color
         void set(std::vector<std::tuple<float, float, float>>); // Set coordinates
         void set(std::tuple<int, int, int>); // Set color
+        void debug(); // Reworked dispaly function
         void display();
 };
