@@ -1,3 +1,4 @@
+#include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <iostream>
 #include <tuple>
@@ -41,14 +42,22 @@ int main(int argc, char *argv[])
     // srand(time(0));
     srand(88);
 
-    for(int i = 0; i < 25; i++) // TODO: change to random number to generate
+    for(int i = 0; i < 250; i++)
     {
         std::vector<std::tuple<float, float, float>> coordinates;
         for(int j = 0; j < (rand() % 4) + 3; j++)
         {
-            float x = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
-            float y = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
-            float z = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
+            float x, y, z;
+            if (coordinates.empty())
+            {
+                x = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
+                y = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
+                z = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
+            } else {
+                x = std::get<0>(coordinates[j-1]) + ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.2f - 0.1f);
+                y = std::get<1>(coordinates[j-1]) + ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.2f - 0.1f);
+                z = std::get<2>(coordinates[j-1]) + ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.2f - 0.1f);
+            }
             coordinates.push_back({x, y, z});
         }
         int color1 = rand() % 255;
@@ -62,11 +71,13 @@ int main(int argc, char *argv[])
     glutInit(&argc, argv);
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(250, 250);
-    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
     glutCreateWindow("Polygons - Nkunga");
-    // polygons[i].display();
     glutDisplayFunc(display);
     init();
     glutMainLoop();
     return 0;
 }
+
+//TODO:
+// GL_ENABLE DEPTH BUFFER, DEPTH BUFFER CLEAR

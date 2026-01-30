@@ -6,7 +6,7 @@ struct Polygon
 {
     private:
         std::vector<std::tuple<float, float, float>> coordinates; // Vector of 3D coordinates for the polygon
-        std::tuple<int, int, int> color; //RGB value for the color of the polygon
+        std::tuple<int, int, int> color; //RGB value for the color of the polygon // TODO: Make these into floats
     public:
         Polygon(std::vector<std::tuple<float, float, float>>, std::tuple<int, int, int>);
         ~Polygon() {};
