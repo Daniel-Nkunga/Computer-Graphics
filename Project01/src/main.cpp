@@ -23,11 +23,13 @@ void init()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(size_t i = 0; i < polygons.size(); i++)
     {
@@ -42,7 +44,7 @@ int main(int argc, char *argv[])
     // srand(time(0));
     srand(88);
 
-    for(int i = 0; i < 250; i++)
+    for(int i = 0; i < 50; i++)
     {
         std::vector<std::tuple<float, float, float>> coordinates;
         for(int j = 0; j < (rand() % 4) + 3; j++)
@@ -71,7 +73,7 @@ int main(int argc, char *argv[])
     glutInit(&argc, argv);
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(250, 250);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE |GLUT_DEPTH);
     glutCreateWindow("Polygons - Nkunga");
     glutDisplayFunc(display);
     init();
