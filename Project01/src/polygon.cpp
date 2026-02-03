@@ -65,4 +65,5 @@ void Polygon::display()
         glVertex3f(x, y, z);
     }
     glEnd();
+    // glRotatef(30.0, 1.0, 1.0, 1.0);
 }
