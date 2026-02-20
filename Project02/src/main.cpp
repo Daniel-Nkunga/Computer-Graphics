@@ -1,5 +1,6 @@
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
+#include <cstddef>
 #include <iostream>
 #include <tuple>
 #include <vector>
@@ -29,14 +30,18 @@ void update(int value);
 
 // Pacman centered at origin, classic yellow, 30-degree mouth opening per side
 Pacman pacman({0.0f, 0.0f, 0.0f}, 0.0625f, {255.0f, 255.0f, 0.0f}, 30.0f);
-Pellet pellet({0.25f, 0.25f, 0.25f});
-Ghost  ghost({-0.25f, -0.25f, -0.25f}, 0.0625f, {100.0f, 80.0f, 60.0f}); // Opposite side from pellet; default blue
+// Pellet pellet({0.25f, 0.25f, 0.25f});
+Ghost Blinky({-0.25f, -0.25f, -0.25f}, 0.0625f, {255.0f, 0.0f, 0.0f});
+Ghost Pinky({-0.25f, 0.25f, -0.25f}, 0.0625f, {255.0f, 184.0f, 255.0f});
+Ghost Inky({0.25f, 0.25f, -0.25f}, 0.0625f, {0.0f, 255.0f, 255.0f});
+Ghost Clide({0.25f, -0.25f, -0.25f}, 0.0625f, {255.0f, 184.0f, 82.0f});
+vector<Ghost> ghosts;
 vector<Pellet> pellets;
 
 int main(int argc, char *argv[])
 {
     pacman.debug();
-    ghost.debug();
+    // ghost.debug();
 
     srand(time(0));
     // srand(88);
@@ -72,10 +77,10 @@ void init()
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_DEPTH_TEST);
 
-    // for(size_t i = 0; i < pellets.size(); i++)
-    // {
-    //     pellets[i].debug();
-    // }
+    ghosts.push_back(Blinky);
+    ghosts.push_back(Pinky);
+    ghosts.push_back(Inky);
+    ghosts.push_back(Clide);
 }
 
 void display()
@@ -91,7 +96,10 @@ void display()
     {
         pellets[i].display();
     }
-    ghost.display();
+    for(size_t i = 0; i < ghosts.size(); i++)
+    {
+        ghosts[i].display();
+    }
 
     glFlush();
 }
