@@ -17,10 +17,12 @@ using namespace std;
 #include <polygon.hpp>
 #include <pacman.hpp>
 #include <pellet.hpp>
+#include <ghost.hpp>
 
-// Pacman centered at origin, radius 0.5, classic yellow, 30-degree mouth opening per side
+// Pacman centered at origin, classic yellow, 30-degree mouth opening per side
 Pacman pacman({0.0f, 0.0f, 0.0f}, 0.0625f, {255.0f, 255.0f, 0.0f}, 30.0f);
-Pellet pellet({0.25f, 0.25f, 0.25f});
+// Pellet pellet({0.25f, 0.25f, 0.25f});
+// Ghost  ghost({-0.25f, -0.25f, -0.25f}, 0.0625f); // Opposite side from pellet; default blue
 
 void init()
 {
@@ -41,6 +43,7 @@ void display()
 
     pacman.display();
     pellet.display();
+    ghost.display();
 
     glFlush();
 }
@@ -48,7 +51,7 @@ void display()
 int main(int argc, char *argv[])
 {
     pacman.debug();
-    cout << "Test" << endl;
+    ghost.debug();
 
     glutInit(&argc, argv);
     glutInitWindowSize(500, 500);

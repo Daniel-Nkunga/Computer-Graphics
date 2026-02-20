@@ -17,8 +17,6 @@ Pacman::Pacman(std::tuple<float, float, float> position, float radius,
     this->mouthAngle = mouthAngle;
 }
 
-// Pacman::Pacman() { }
-
 // ── Setters ──────────────────────────────────
 
 void Pacman::setPosition(std::tuple<float, float, float> position)  { this->position   = position;   }
