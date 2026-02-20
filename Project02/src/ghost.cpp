@@ -75,7 +75,7 @@ void Ghost::display()
 
 void Ghost::debug()
 {
-    std::cout << "\033[1;4;34mGhost:\033[0m "
+    std::cout << "\033[1;4;35mGhost:\033[0m "
               << "Position: (" << std::get<0>(position) << ", "
               << std::get<1>(position) << ", " << std::get<2>(position) << ") | "
               << "Radius: "    << radius << " | "
