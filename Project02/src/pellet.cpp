@@ -19,6 +19,9 @@ Pellet::Pellet(std::tuple<float, float, float> position, float radius,
 Pellet::Pellet(std::tuple<float, float, float> position)
 {
     this->position = position;
+
+    // srand(time(0));
+    this->speed = {(-0.25f + (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.5f)/25, (-0.25f + (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.5f)/25, (-0.25f + (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.5f)/25};
 }
 
 // ── Setters ──────────────────────────────────
@@ -30,6 +33,25 @@ void Pellet::setColor(std::tuple<float, float, float> color)         { this->col
 // ── Getters ──────────────────────────────────
 
 std::tuple<float, float, float> Pellet::getPosition() const { return this->position; }
+
+// ── Logic ──────────────────────────────────
+
+void Pellet::update()
+{
+    std::get<0>(this->position) += std::get<0>(this->speed);
+    std::get<1>(this->position) += std::get<1>(this->speed);
+    // std::get<2>(this->position) += 0.01f;
+
+    if(std::get<0>(this->position) <= -1 || std::get<0>(this->position) >= 1)
+    {
+        std::get<0>(this->speed) *= -.99;
+    }
+    if(std::get<1>(this->position) <= -1 || std::get<1>(this->position) >= 1)
+    {
+        std::get<1>(this->speed) *= -.99;
+    }
+    // debug();
+}
 
 // ── Display ──────────────────────────────────
 
@@ -58,7 +80,7 @@ void Pellet::display()
 
 void Pellet::debug()
 {
-    std::cout << "\033[1;4;37mPacman:\033[0m "
+    std::cout << "\033[1;4;37mPellet:\033[0m "
               << "Position: (" << std::get<0>(position) << ", "
               << std::get<1>(position) << ", " << std::get<2>(position) << ") | "
               << "Radius: " << radius << " | "
