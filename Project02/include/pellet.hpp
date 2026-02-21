@@ -3,28 +3,27 @@
 #include <tuple>
 #include <vector>
 
-class Pellet
-{
-    private:
-        std::tuple<float, float, float> position; // Center coordinate of Pellet
-        float radius = 0.0078125f;
-        std::tuple<float, float, float> color = {255.0f, 255.0f, 255.0f};
-        static const int NUM_DIVISIONS = 12;
-        std::tuple<float, float, float> speed;
+class Pellet {
+private:
+  std::tuple<float, float, float> position; // Center coordinate of Pellet
+  float radius = 0.0078125f;
+  std::tuple<float, float, float> color = {255.0f, 255.0f, 255.0f};
+  static const int NUM_DIVISIONS = 12;
+  std::tuple<float, float, float> speed;
 
-    public:
-        Pellet(std::tuple<float, float, float> position, float radius,
-               std::tuple<float, float, float> color = {255.0f, 255.0f, 255.0f});
-        Pellet(std::tuple<float, float, float> position);
-        ~Pellet() {};
+public:
+  Pellet(std::tuple<float, float, float> position, float radius,
+         std::tuple<float, float, float> color = {255.0f, 255.0f, 255.0f});
+  Pellet(std::tuple<float, float, float> position);
+  ~Pellet() {};
 
-        void setPosition(std::tuple<float, float, float> position);
-        void setRadius(float radius);
-        void setColor(std::tuple<float, float, float> color);
+  void setPosition(std::tuple<float, float, float> position);
+  void setRadius(float radius);
+  void setColor(std::tuple<float, float, float> color);
 
-        std::tuple<float, float, float> getPosition() const;
+  std::tuple<float, float, float> getPosition() const;
 
-        void update();
-        void display();
-        void debug();
+  void update();
+  void display();
+  void debug();
 };
