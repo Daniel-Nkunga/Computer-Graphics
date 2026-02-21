@@ -55,6 +55,8 @@ void Pacman::update(float speed) {
   if (dx == 0.0f && dy == 0.0f)
     return;
 
+  facingAngle = atan2(dy, dx) * 180.0f / M_PI;
+
   float x = std::get<0>(this->position) + dx;
   float y = std::get<1>(this->position) + dy;
 
@@ -150,6 +152,11 @@ void Pacman::display() {
   float startAngle = mouthRad;
   float endAngle = TWO_PI - mouthRad;
 
+  glPushMatrix();
+  glTranslatef(cx, cy, cz);
+  glRotatef(facingAngle, 0.0f, 0.0f, 1.0f);
+  glTranslatef(-cx, -cy, -cz);
+
   glBegin(GL_POLYGON);
   glVertex3f(cx, cy, cz);
   for (int i = 0; i <= NUM_DIVISIONS; i++) {
@@ -157,6 +164,7 @@ void Pacman::display() {
     glVertex3f(cx + radius * cos(t), cy + radius * sin(t), cz);
   }
   glEnd();
+  glPopMatrix();
 }
 
 // ── Debug

@@ -11,6 +11,8 @@ private:
   std::tuple<float, float, float> color;
   static const int NUM_DIVISIONS = 20;
 
+  float facingAngle = 0.0f; // Degrees; 0 = right, 90 = up, etc.
+
   // Key state
   bool key_up = false;
   bool key_down = false;
