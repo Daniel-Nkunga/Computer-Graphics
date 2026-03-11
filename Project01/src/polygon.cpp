@@ -4,14 +4,22 @@
 #include <tuple>
 #include <vector>
 
-Polygon::Polygon(std::vector<std::tuple<float, float, float>> coordinates, std::tuple<int, int, int> color)
+
+Polygon::Polygon(std::vector<std::tuple<float, float, float>> coordinates, std::tuple<float, float, float> color)
 {
     this->coordinates = coordinates;
     this->color = color;
 }
 
-// Setting functions
-void Polygon::set(std::vector<std::tuple<float, float, float>> coordinates, std::tuple<int, int, int> color)
+/* Setter Functions
+
+Setting functions are overloaded to account for three outcomes:
+    - set a polygon requiring all coordinates and color
+    - only set the coordinates
+    - only set the color
+
+*/
+void Polygon::set(std::vector<std::tuple<float, float, float>> coordinates, std::tuple<float, float, float> color)
 {
     this->coordinates = coordinates;
     this->color = color;
@@ -22,11 +30,18 @@ void Polygon::set(std::vector<std::tuple<float, float, float>> coordinates) // S
     this->coordinates = coordinates;
 }
 
-void Polygon::set(std::tuple<int, int, int> color) // Set color
+void Polygon::set(std::tuple<float, float, float> color) // Set color
 {
     this->color = color;
 }
 
+
+void Polygon::add(std::tuple<float, float, float> point)
+{
+    this->coordinates.push_back(point);
+}
+
+// Previous debug function written in Step A; using ANSII escape sequences to color the terminal
 void Polygon::debug()
 {
     // Display coordinates
@@ -42,7 +57,7 @@ void Polygon::debug()
             std::cout << ",\033[0m ";
     }
 
-    // Display color
+    // Display color1
     std::cout << " | \033[1;4;34mColor:\033[0m ("
               << std::get<0>(this->color) << ", "
               << std::get<1>(this->color) << ", "
@@ -53,7 +68,7 @@ void Polygon::display()
 {
     glColor3f(std::get<0>(this->color) / 255.0f,
               std::get<1>(this->color) / 255.0f,
-              std::get<2>(this->color) / 255.0f);  // Set the polygon's color!
+              std::get<2>(this->color) / 255.0f);
 
     glBegin(GL_POLYGON);
     for(size_t i = 0; i < this->coordinates.size(); i++)
@@ -65,5 +80,4 @@ void Polygon::display()
         glVertex3f(x, y, z);
     }
     glEnd();
-    // glRotatef(30.0, 1.0, 1.0, 1.0);
 }

@@ -1,8 +1,7 @@
+// OpenGL imports
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <iostream>
-#include <tuple>
-#include <vector>
 #include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,18 +10,15 @@
 #else
 #include <GL/glut.h>
 #endif
+
+// Basic inputs
+#include <tuple>
+#include <vector>
+
+// Local Inports
+// #include <erosion_sim.hpp>
+#include <image.hpp>
 using namespace std;
-
-
-void init()
-{
-    return;
-}
-
-void display()
-{
-    return;
-}
 
 int main(int argc, char *argv[])
 {

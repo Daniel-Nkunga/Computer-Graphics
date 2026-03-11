@@ -3,6 +3,7 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
+#include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef MAC
@@ -18,11 +19,6 @@ using namespace std;
 std::vector<Polygon> polygons;
 float theta = 0.0f;
 
-/* Init Function
-
-
-
-*/
 void init()
 {
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -58,7 +54,7 @@ int main(int argc, char *argv[])
     // srand(88);
 
     // Generate polygons; capped at 150 for visual clutter
-    for(int i = 0; i < 150; i++)
+    for(int i = 0; i < 888; i++)
     {
         // Geenrate a random number of points between [3, 7]
         std::vector<std::tuple<float, float, float>> coordinates;
@@ -70,7 +66,8 @@ int main(int argc, char *argv[])
                 x = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
                 y = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
                 z = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f;
-            } else {
+            } else {    // for(int i = 0; i < 150; i++)
+
                 // Forces the generation of the next point to be somewhat next to the previous point
                 x = std::get<0>(coordinates[j-1]) + ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.2f - 0.1f);
                 y = std::get<1>(coordinates[j-1]) + ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 0.2f - 0.1f);
@@ -82,10 +79,10 @@ int main(int argc, char *argv[])
         float color2 = rand() % 255;
         float color3 = rand() % 255;
         polygons.push_back(Polygon(coordinates, {color1, color2, color3}));
-        polygons[i].debug();
+        // polygons[i].debug();
     }
 
-    // Display function
+    // OpenGL Functions
     glutInit(&argc, argv);
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(250, 250);
