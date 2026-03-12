@@ -26,7 +26,7 @@ void init();
 void display();
 
 // Globals needed by display()
-const int SIZE = 64;
+const int SIZE = 256;
 vector<vector<tuple<float, float, float>>> coordinates;
 
 int main(int argc, char *argv[]) {
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 
     // Perlin noise generation parameters
     const double SCALE       = 20.0;
-    const int    OCTAVES     = 5;
+    const int    OCTAVES     = 30;
     const double PERSISTENCE = 0.5;
     const double LACUNARITY  = 2.0;
     const uint32_t SEED      = rand();
