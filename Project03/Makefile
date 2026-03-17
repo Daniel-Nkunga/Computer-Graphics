@@ -13,3 +13,6 @@ terrain: src/main.cpp
 
 compile: src/main.cpp
 	$(CC) -o terrain -I include src/* $(LIB)
+
+run : src/main.cpp
+	./terrain
