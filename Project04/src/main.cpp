@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <typeinfo>
+#include <cmath>
 
 // OpenGL Functions
 #include <GL/freeglut_std.h>
@@ -20,10 +21,12 @@
 #include <cube.hpp>
 
 // Display variables
-float xpos = 0.1;
-float ypos = 0.1;
-float zpos = 1.1;
-float step = 0.01;
+float xpos = 2.1;
+float ypos = 2.1;
+float zpos = 1.0f;
+float step = 0.1;
+float theta = 0.0f;
+float theta_z = 0.0f;
 
 using namespace std;
 
@@ -60,10 +63,13 @@ void init() {
 }
 
 void display() {
+    cout << "(" << 3*sin(theta) << ", " << 3*cos(theta) << ", " << 3*sin(theta_z) << ")" << endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(xpos,ypos,zpos, 0,0,0, 0,1,0);
+    gluLookAt(3*cos(theta),3*sin(theta),3*sin(theta_z),
+         0,0,0,
+          0,1,0);
     Cube(0.0, 0.0, 0.0, 0.5).draw();
     glFlush();
 }
@@ -76,18 +82,25 @@ void keyboard(unsigned char key, int x, int y)
 
    // Update camera position
    else if (key == 'x')
-      xpos -= step;
+    {
+        // xpos -= step;
+        theta -= step;
+    }
    else if (key == 'y')
       ypos -= step;
    else if (key == 'z')
-      zpos -= step;
-
+        // zpos -= step;
+        theta_z -= step;
    else if (key == 'X')
-      xpos += step;
+    {
+        // xpos += step;
+        theta += step;
+    }
    else if (key == 'Y')
       ypos += step;
    else if (key == 'Z')
-      zpos += step;
+        // zpos += step;
+        theta_z += step;
 
    // Redraw objects
    glutPostRedisplay();
