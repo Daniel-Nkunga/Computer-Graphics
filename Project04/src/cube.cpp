@@ -132,7 +132,17 @@ void Cube::update()
     {
         *this = createRandomCube();
     }
-    // draw();
+}
+
+void StationaryCube::update()
+{
+    rotationX += thetaX / 3;
+    // rotationY += thetaY;
+    // applyGravity();
+    // if(midy <= -10)
+    // {
+    //     *this = createRandomCube();
+    // }
 }
 
 Cube Cube::createRandomCube()

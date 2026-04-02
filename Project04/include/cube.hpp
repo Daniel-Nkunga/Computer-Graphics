@@ -1,7 +1,6 @@
 #ifndef CUBE_H
 #define CUBE_H
 
-// Imports
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -13,7 +12,7 @@ using namespace std;
 
 class Cube
 {
-private:
+protected:
     float midx, midy, midz, size;
     float rotationX, thetaX, rotationY, thetaY;
     float gravityModifier;
@@ -21,11 +20,18 @@ private:
     void applyGravity();
 public:
     Cube(float _midx, float _midy, float _midz, float _size);
-    ~Cube() {};
+    virtual ~Cube() {};
 
     void draw();
-    void update();
+    virtual void update();
     static Cube createRandomCube();
+};
+
+class StationaryCube : public Cube
+{
+public:
+    using Cube::Cube;
+    void update() override;
 };
 
 #endif
