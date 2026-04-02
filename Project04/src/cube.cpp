@@ -14,7 +14,7 @@
 // Custom classes
 #include <cube.hpp>
 
-#define GRAVITY 0.15f;
+float GRAVITY  = 0.1f;
 int SPAWN_RADIUS = 15;
 
 
@@ -24,13 +24,22 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
     midy = _midy;
     midz = _midz;
     size = _size;
-    rotation = 0.0f;
-    gravityModifier = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/2));
+    rotationX = 0.0f;
+    thetaX = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.25-(0.75))));
+    rotationY = 0.0f;
+    thetaY = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.25-(0.75))));
+    gravityModifier = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.25-(0.75))));
 
 }
 
 void Cube::draw()
 {
+    glPushMatrix();
+    glTranslatef(midx, midy, midz);
+    glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
+    glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
+    glTranslatef(-midx, -midy, -midz);
+
     // Define 8 vertices
    float ax = midx - size / 2;
    float ay = midy - size / 2;
@@ -105,16 +114,20 @@ void Cube::draw()
     glVertex3f(dx, dy, dz);
     glVertex3f(cx, cy, cz);
     glEnd();
+
+    glPopMatrix();
 }
 
-void Cube::apply_gravity()
+void Cube::applyGravity()
 {
-    midy -= GRAVITY;
+    midy -= GRAVITY * gravityModifier;
 }
 
 void Cube::update()
 {
-    apply_gravity();
+    rotationX += thetaX;
+    rotationY += thetaY;
+    applyGravity();
     if(midy <= -10)
     {
         *this = createRandomCube();

@@ -15,10 +15,10 @@ class Cube
 {
 private:
     float midx, midy, midz, size;
-    float rotation;
+    float rotationX, thetaX, rotationY, thetaY;
     float gravityModifier;
 
-    void apply_gravity();
+    void applyGravity();
 public:
     Cube(float _midx, float _midy, float _midz, float _size);
     ~Cube() {};
