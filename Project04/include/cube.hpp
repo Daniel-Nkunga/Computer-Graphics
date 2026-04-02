@@ -16,6 +16,7 @@ class Cube
 private:
     float midx, midy, midz, size;
     float rotation;
+    float gravityModifier;
 
     void apply_gravity();
 public:
@@ -24,7 +25,7 @@ public:
 
     void draw();
     void update();
-
+    static Cube createRandomCube();
 };
 
 #endif

@@ -33,7 +33,6 @@ Cube cube1(0.0, 0.0, 0.0, 0.5);
 Cube cube2(1.0, 0.0, 1.0, 0.5);
 Cube cube3(-1.0, 0.0, -1.0, 0.5);
 vector<Cube> cubes = {cube1, cube2, cube3};
-int SPAWN_RADIUS = 15;
 
 #define TARGET_FPS 60
 #define FRAME_DELAY (1000 / TARGET_FPS)
@@ -46,11 +45,10 @@ void display();
 void update(int value);
 void keyboard(unsigned char key, int x, int y);
 void initializeScene();
-Cube createCube();
+// Cube createCube();
 
 int main(int argc, char *argv[]) {
     initializeScene();
-    cout << cubes.size() << endl;
 
     glutInit(&argc, argv);
     glutInitWindowSize(1000, 1000);
@@ -135,20 +133,8 @@ void update(int value) {
 
 void initializeScene()
 {
-    for(int i = 0; i < 500; i++)
+    for(int i = 0; i < 1000; i++)
     {
-        cubes.push_back(createCube());
+        cubes.push_back(Cube::createRandomCube());
     }
-}
-
-Cube createCube()
-{
-    float initX, initY, initZ, size;
-    initX = (-1*SPAWN_RADIUS) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/((SPAWN_RADIUS*3))));
-    initY = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) + 1.25;
-    initZ = (-1*SPAWN_RADIUS) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/((SPAWN_RADIUS*3))));
-    size = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/0.5));
-
-    cout << "(" << initX << ", " << initY << ", " << initZ << ", " << size << ")" << endl;
-    return Cube(initX, initY, initZ, size);
 }

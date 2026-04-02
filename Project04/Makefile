@@ -7,12 +7,12 @@ endif
 LIB2 = ../libim/libim.a ../jpeg/libjpeg.a
 CC = g++ -Wall -Wno-deprecated-declarations
 
-camera_issues: src/main.cpp
-	$(CC) -o camera_issues -I include src/* $(LIB)
-	./camera_issues
+dice_scene: src/main.cpp
+	$(CC) -o dice_scene -I include src/* $(LIB)
+	./dice_scene
 
 compile: src/main.cpp
-	$(CC) -o camera_issues -I include src/* $(LIB)
+	$(CC) -o dice_scene -I include src/* $(LIB)
 
 run : src/main.cpp
-	./camera_issues
+	./dice_scene

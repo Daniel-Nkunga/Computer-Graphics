@@ -14,7 +14,9 @@
 // Custom classes
 #include <cube.hpp>
 
-#define GRAVITY 0.0f;
+#define GRAVITY 0.15f;
+int SPAWN_RADIUS = 15;
+
 
 Cube::Cube(float _midx, float _midy, float _midz, float _size)
 {
@@ -23,6 +25,8 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
     midz = _midz;
     size = _size;
     rotation = 0.0f;
+    gravityModifier = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/2));
+
 }
 
 void Cube::draw()
@@ -111,5 +115,23 @@ void Cube::apply_gravity()
 void Cube::update()
 {
     apply_gravity();
+    if(midy <= -10)
+    {
+        *this = createRandomCube();
+    }
     // draw();
+}
+
+Cube Cube::createRandomCube()
+{
+    int low = -8;
+    int high = 6;
+    float initX, initY, initZ, size;
+    initX = (-1*SPAWN_RADIUS) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/((SPAWN_RADIUS*3))));
+    initY = low + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(high-(low))));
+    initZ = (-1*SPAWN_RADIUS) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/((SPAWN_RADIUS*3))));
+    size = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/0.5));
+
+    // cout << "(" << initX << ", " << initY << ", " << initZ << ", " << size << ")" << endl;
+    return Cube(initX, initY, initZ, size);
 }
