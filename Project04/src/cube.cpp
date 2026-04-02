@@ -60,7 +60,7 @@ void Cube::draw()
     float gx = midx + size / 2, gy = midy + size / 2, gz = midz - size / 2;
     float hx = midx - size / 2, hy = midy + size / 2, hz = midz - size / 2;
 
-    // Face 1 - front (abcd)
+    // Side 1 - top
     glBegin(GL_POLYGON);
     glColor3f(1.0, 1.0, 1.0);
     glTexCoord2f(0*w, 0.0); glVertex3f(ax, ay, az);
@@ -69,49 +69,49 @@ void Cube::draw()
     glTexCoord2f(0*w, 1.0); glVertex3f(dx, dy, dz);
     glEnd();
 
-    // Face 2 - left (adhe)
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 1.0, 1.0);
-    glTexCoord2f(1*w, 0.0); glVertex3f(ax, ay, az);
-    glTexCoord2f(2*w, 0.0); glVertex3f(dx, dy, dz);
-    glTexCoord2f(2*w, 1.0); glVertex3f(hx, hy, hz);
-    glTexCoord2f(1*w, 1.0); glVertex3f(ex, ey, ez);
-    glEnd();
-
-    // Face 3 - back (fehg)
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 1.0, 1.0);
-    glTexCoord2f(2*w, 0.0); glVertex3f(fx, fy, fz);
-    glTexCoord2f(3*w, 0.0); glVertex3f(ex, ey, ez);
-    glTexCoord2f(3*w, 1.0); glVertex3f(hx, hy, hz);
-    glTexCoord2f(2*w, 1.0); glVertex3f(gx, gy, gz);
-    glEnd();
-
-    // Face 4 - right (bcgf)
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 1.0, 1.0);
-    glTexCoord2f(3*w, 0.0); glVertex3f(bx, by, bz);
-    glTexCoord2f(4*w, 0.0); glVertex3f(cx, cy, cz);
-    glTexCoord2f(4*w, 1.0); glVertex3f(gx, gy, gz);
-    glTexCoord2f(3*w, 1.0); glVertex3f(fx, fy, fz);
-    glEnd();
-
-    // Face 5 - bottom (abfe)
+    // Side 5 - left
     glBegin(GL_POLYGON);
     glColor3f(1.0, 1.0, 1.0);
     glTexCoord2f(4*w, 0.0); glVertex3f(ax, ay, az);
-    glTexCoord2f(5*w, 0.0); glVertex3f(bx, by, bz);
-    glTexCoord2f(5*w, 1.0); glVertex3f(fx, fy, fz);
+    glTexCoord2f(5*w, 0.0); glVertex3f(dx, dy, dz);
+    glTexCoord2f(5*w, 1.0); glVertex3f(hx, hy, hz);
     glTexCoord2f(4*w, 1.0); glVertex3f(ex, ey, ez);
     glEnd();
 
-    // Face 6 - top (dcgh)
+    // Side 6 - back
     glBegin(GL_POLYGON);
     glColor3f(1.0, 1.0, 1.0);
-    glTexCoord2f(5*w, 0.0); glVertex3f(dx, dy, dz);
-    glTexCoord2f(6*w, 0.0); glVertex3f(cx, cy, cz);
-    glTexCoord2f(6*w, 1.0); glVertex3f(gx, gy, gz);
-    glTexCoord2f(5*w, 1.0); glVertex3f(hx, hy, hz);
+    glTexCoord2f(5*w, 0.0); glVertex3f(fx, fy, fz);
+    glTexCoord2f(6*w, 0.0); glVertex3f(ex, ey, ez);
+    glTexCoord2f(6*w, 1.0); glVertex3f(hx, hy, hz);
+    glTexCoord2f(5*w, 1.0); glVertex3f(gx, gy, gz);
+    glEnd();
+
+    // Side 2 - right
+    glBegin(GL_POLYGON);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(1*w, 0.0); glVertex3f(bx, by, bz);
+    glTexCoord2f(2*w, 0.0); glVertex3f(cx, cy, cz);
+    glTexCoord2f(2*w, 1.0); glVertex3f(gx, gy, gz);
+    glTexCoord2f(1*w, 1.0); glVertex3f(fx, fy, fz);
+    glEnd();
+
+    // Side 4 - bottom
+    glBegin(GL_POLYGON);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(3*w, 0.0); glVertex3f(ax, ay, az);
+    glTexCoord2f(4*w, 0.0); glVertex3f(bx, by, bz);
+    glTexCoord2f(4*w, 1.0); glVertex3f(fx, fy, fz);
+    glTexCoord2f(3*w, 1.0); glVertex3f(ex, ey, ez);
+    glEnd();
+
+    // Side 3 - top
+    glBegin(GL_POLYGON);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(2*w, 0.0); glVertex3f(dx, dy, dz);
+    glTexCoord2f(3*w, 0.0); glVertex3f(cx, cy, cz);
+    glTexCoord2f(3*w, 1.0); glVertex3f(gx, gy, gz);
+    glTexCoord2f(2*w, 1.0); glVertex3f(hx, hy, hz);
     glEnd();
 
     glPopMatrix();
