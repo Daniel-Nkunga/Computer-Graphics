@@ -1,0 +1,13 @@
+**End Goal**: Dice falling like rain around a table. Single dice sits on the table illuminated by a candle. The scene is toon shaded.
+    - [ ] Dice
+        - [X] Cube
+        - [ ] Texture mapping
+    - [ ] Dice falling
+        - [ ] Dice falling in a radius around the table/camera
+    - [ ] Single dice sits on the table
+        - [ ] Table
+        - [ ] Dice on table
+    - [ ] Simple toon shader
+    - [ ] Candle on table
+        - [ ] Candle
+        - [ ] Candle produces orange light

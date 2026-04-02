@@ -1,3 +1,6 @@
+// Basic imports
+#include <cmath>
+
 // OpenGL Functions
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
@@ -8,9 +11,10 @@
 #include <GL/glut.h>
 #endif
 
+// Custom classes
 #include <cube.hpp>
 
-#define ROOT_TWO = 1.4142135623731;
+#define GRAVITY 0.0f;
 
 Cube::Cube(float _midx, float _midy, float _midz, float _size)
 {
@@ -18,6 +22,7 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
     midy = _midy;
     midz = _midz;
     size = _size;
+    rotation = 0.0f;
 }
 
 void Cube::draw()
@@ -96,4 +101,15 @@ void Cube::draw()
     glVertex3f(dx, dy, dz);
     glVertex3f(cx, cy, cz);
     glEnd();
+}
+
+void Cube::apply_gravity()
+{
+    midy -= GRAVITY;
+}
+
+void Cube::update()
+{
+    apply_gravity();
+    // draw();
 }
