@@ -10,12 +10,17 @@
 #else
 #include <GL/glut.h>
 #endif
+#include "libim/im_color.h"
 
 // Custom classes
 #include <cube.hpp>
 
 float GRAVITY  = 0.1f;
 int SPAWN_RADIUS = 15;
+
+// Texture mapping variables (shared via extern in cube.hpp)
+int xdim, ydim;
+unsigned char *texture;
 
 
 Cube::Cube(float _midx, float _midy, float _midz, float _size)
@@ -34,6 +39,11 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
 
 void Cube::draw()
 {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+
+    // Each face is 1/6th of the sprite strip width
+    float w = 1.0f / 6.0f;
+
     glPushMatrix();
     glTranslatef(midx, midy, midz);
     glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
@@ -41,78 +51,67 @@ void Cube::draw()
     glTranslatef(-midx, -midy, -midz);
 
     // Define 8 vertices
-   float ax = midx - size / 2;
-   float ay = midy - size / 2;
-   float az = midz + size / 2;
-   float bx = midx + size / 2;
-   float by = midy - size / 2;
-   float bz = midz + size / 2;
-   float cx = midx + size / 2;
-   float cy = midy + size / 2;
-   float cz = midz + size / 2;
-   float dx = midx - size / 2;
-   float dy = midy + size / 2;
-   float dz = midz + size / 2;
-   float ex = midx - size / 2;
-   float ey = midy - size / 2;
-   float ez = midz - size / 2;
-   float fx = midx + size / 2;
-   float fy = midy - size / 2;
-   float fz = midz - size / 2;
-   float gx = midx + size / 2;
-   float gy = midy + size / 2;
-   float gz = midz - size / 2;
-   float hx = midx - size / 2;
-   float hy = midy + size / 2;
-   float hz = midz - size / 2;
+    float ax = midx - size / 2, ay = midy - size / 2, az = midz + size / 2;
+    float bx = midx + size / 2, by = midy - size / 2, bz = midz + size / 2;
+    float cx = midx + size / 2, cy = midy + size / 2, cz = midz + size / 2;
+    float dx = midx - size / 2, dy = midy + size / 2, dz = midz + size / 2;
+    float ex = midx - size / 2, ey = midy - size / 2, ez = midz - size / 2;
+    float fx = midx + size / 2, fy = midy - size / 2, fz = midz - size / 2;
+    float gx = midx + size / 2, gy = midy + size / 2, gz = midz - size / 2;
+    float hx = midx - size / 2, hy = midy + size / 2, hz = midz - size / 2;
 
-    // Draw 6 faces
+    // Face 1 - front (abcd)
     glBegin(GL_POLYGON);
-    glColor3f(1.0, 0.0, 0.0);
-    glVertex3f(ax, ay, az);
-    glVertex3f(bx, by, bz);
-    glVertex3f(cx, cy, cz);
-    glVertex3f(dx, dy, dz);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(0*w, 0.0); glVertex3f(ax, ay, az);
+    glTexCoord2f(1*w, 0.0); glVertex3f(bx, by, bz);
+    glTexCoord2f(1*w, 1.0); glVertex3f(cx, cy, cz);
+    glTexCoord2f(0*w, 1.0); glVertex3f(dx, dy, dz);
     glEnd();
 
+    // Face 2 - left (adhe)
     glBegin(GL_POLYGON);
-    glColor3f(0.0, 1.0, 0.0);
-    glVertex3f(ax, ay, az);
-    glVertex3f(dx, dy, dz);
-    glVertex3f(hx, hy, hz);
-    glVertex3f(ex, ey, ez);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(1*w, 0.0); glVertex3f(ax, ay, az);
+    glTexCoord2f(2*w, 0.0); glVertex3f(dx, dy, dz);
+    glTexCoord2f(2*w, 1.0); glVertex3f(hx, hy, hz);
+    glTexCoord2f(1*w, 1.0); glVertex3f(ex, ey, ez);
     glEnd();
 
+    // Face 3 - back (fehg)
     glBegin(GL_POLYGON);
-    glColor3f(0.0, 0.0, 1.0);
-    glVertex3f(ax, ay, az);
-    glVertex3f(ex, ey, ez);
-    glVertex3f(fx, fy, fz);
-    glVertex3f(bx, by, bz);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(2*w, 0.0); glVertex3f(fx, fy, fz);
+    glTexCoord2f(3*w, 0.0); glVertex3f(ex, ey, ez);
+    glTexCoord2f(3*w, 1.0); glVertex3f(hx, hy, hz);
+    glTexCoord2f(2*w, 1.0); glVertex3f(gx, gy, gz);
     glEnd();
 
+    // Face 4 - right (bcgf)
     glBegin(GL_POLYGON);
-    glColor3f(0.0, 1.0, 1.0);
-    glVertex3f(gx, gy, gz);
-    glVertex3f(fx, fy, fz);
-    glVertex3f(ex, ey, ez);
-    glVertex3f(hx, hy, hz);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(3*w, 0.0); glVertex3f(bx, by, bz);
+    glTexCoord2f(4*w, 0.0); glVertex3f(cx, cy, cz);
+    glTexCoord2f(4*w, 1.0); glVertex3f(gx, gy, gz);
+    glTexCoord2f(3*w, 1.0); glVertex3f(fx, fy, fz);
     glEnd();
 
+    // Face 5 - bottom (abfe)
     glBegin(GL_POLYGON);
-    glColor3f(1.0, 0.0, 1.0);
-    glVertex3f(gx, gy, gz);
-    glVertex3f(cx, cy, cz);
-    glVertex3f(bx, by, bz);
-    glVertex3f(fx, fy, fz);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(4*w, 0.0); glVertex3f(ax, ay, az);
+    glTexCoord2f(5*w, 0.0); glVertex3f(bx, by, bz);
+    glTexCoord2f(5*w, 1.0); glVertex3f(fx, fy, fz);
+    glTexCoord2f(4*w, 1.0); glVertex3f(ex, ey, ez);
     glEnd();
 
+    // Face 6 - top (dcgh)
     glBegin(GL_POLYGON);
-    glColor3f(1.0, 1.0, 0.0);
-    glVertex3f(gx, gy, gz);
-    glVertex3f(hx, hy, hz);
-    glVertex3f(dx, dy, dz);
-    glVertex3f(cx, cy, cz);
+    glColor3f(1.0, 1.0, 1.0);
+    glTexCoord2f(5*w, 0.0); glVertex3f(dx, dy, dz);
+    glTexCoord2f(6*w, 0.0); glVertex3f(cx, cy, cz);
+    glTexCoord2f(6*w, 1.0); glVertex3f(gx, gy, gz);
+    glTexCoord2f(5*w, 1.0); glVertex3f(hx, hy, hz);
     glEnd();
 
     glPopMatrix();
@@ -162,4 +161,28 @@ Cube Cube::createRandomCube()
     size  = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5));
 
     return Cube(initX, initY, initZ, size);
+}
+
+void init_texture(char *name, unsigned char *&texture, int &xdim, int &ydim)
+{
+   // Read jpg image
+   im_color image;
+   image.ReadJpg(name);
+   printf("Reading image %s\n", name);
+   xdim = 1; while (xdim < image.R.Xdim) xdim*=2; xdim /=2;
+   ydim = 1; while (ydim < image.R.Ydim) ydim*=2; ydim /=2;
+   image.Interpolate(xdim, ydim);
+   printf("Interpolating %dx%d to %dx%d\n", 
+      image.R.Xdim, image.R.Ydim, xdim, ydim);
+
+   // Copy image into texture array
+   texture = (unsigned char *)malloc((unsigned int)(xdim*ydim*3));
+   int index = 0;
+   for (int y = 0; y < ydim; y++)
+      for (int x = 0; x < xdim; x++)
+      {
+         texture[index++] = (unsigned char)(image.R.Data2D[y][x]);
+         texture[index++] = (unsigned char)(image.G.Data2D[y][x]);
+         texture[index++] = (unsigned char)(image.B.Data2D[y][x]);
+      }
 }
