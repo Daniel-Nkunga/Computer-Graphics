@@ -25,9 +25,9 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
     midz = _midz;
     size = _size;
     rotationX = 0.0f;
-    thetaX = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.25-(0.75))));
+    thetaX = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(2.25-(0.75))));
     rotationY = 0.0f;
-    thetaY = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.25-(0.75))));
+    thetaY = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(2.25-(0.75))));
     gravityModifier = 0.75 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.25-(0.75))));
 
 }
@@ -139,12 +139,17 @@ Cube Cube::createRandomCube()
 {
     int low = -8;
     int high = 6;
-    float initX, initY, initZ, size;
-    initX = (-1*SPAWN_RADIUS) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/((SPAWN_RADIUS*3))));
-    initY = low + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(high-(low))));
-    initZ = (-1*SPAWN_RADIUS) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/((SPAWN_RADIUS*3))));
-    size = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/0.5));
+    float INNER_RADIUS = 5.0f;
 
-    // cout << "(" << initX << ", " << initY << ", " << initZ << ", " << size << ")" << endl;
+    float initX, initY, initZ, size;
+
+    do {
+        initX = (-1*SPAWN_RADIUS) + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (SPAWN_RADIUS * 3)));
+        initZ = (-1*SPAWN_RADIUS) + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (SPAWN_RADIUS * 3)));
+    } while (initX * initX + initZ * initZ < INNER_RADIUS * INNER_RADIUS);
+
+    initY = low + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (high - low)));
+    size  = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5));
+
     return Cube(initX, initY, initZ, size);
 }

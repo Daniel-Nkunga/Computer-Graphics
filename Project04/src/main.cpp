@@ -29,10 +29,10 @@ float step = 0.1;
 float theta = 0.0f;
 float theta_z = 0.0f;
 float angle = 0.0f;
-Cube cube1(0.0, 0.0, 0.0, 0.5);
-Cube cube2(1.0, 0.0, 1.0, 0.5);
-Cube cube3(-1.0, 0.0, -1.0, 0.5);
-vector<Cube> cubes = {cube1, cube2, cube3};
+// Cube cube1(0.0, 0.0, 0.0, 0.5);
+// Cube cube2(1.0, 0.0, 1.0, 0.5);
+// Cube cube3(-1.0, 0.0, -1.0, 0.5);
+vector<Cube> cubes;
 
 #define TARGET_FPS 60
 #define FRAME_DELAY (1000 / TARGET_FPS)
@@ -133,7 +133,7 @@ void update(int value) {
 
 void initializeScene()
 {
-    for(int i = 0; i < 1000; i++)
+    for(int i = 0; i < 2000; i++)
     {
         cubes.push_back(Cube::createRandomCube());
     }

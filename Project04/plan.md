@@ -2,8 +2,8 @@
     - [ ] Dice
         - [X] Cube
         - [ ] Texture mapping
-    - [ ] Dice falling
-        - [ ] Dice falling in a radius around the table/camera
+    - [X] Dice falling
+        - [X] Dice falling in a radius around the table/camera *bug where dice can spawn directly above camera
     - [ ] Single dice sits on the table
         - [ ] Table
         - [ ] Dice on table
