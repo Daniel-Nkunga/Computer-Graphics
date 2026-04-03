@@ -7,7 +7,7 @@ endif
 LIB2 = libim/libim.a jpeg/libjpeg.a
 CC = g++ -Wall -Wno-deprecated-declarations
 
-SHARED = src/cube.cpp
+SHARED = src/cube.cpp src/table.cpp
 
 dice_scene: src/main.cpp
 	$(CC) -o dice_scene -I include -I . src/main.cpp $(SHARED) $(LIB) $(LIB2)

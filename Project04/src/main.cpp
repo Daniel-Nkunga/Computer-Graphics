@@ -19,6 +19,7 @@
 
 // Custom classes
 #include <cube.hpp>
+#include <table.hpp>
 // #include <matrix.hpp>
 
 // Display variables
@@ -30,6 +31,7 @@ float theta = 0.0f;
 float theta_z = 0.0f;
 float angle = 0.0f;
 vector<Cube> cubes;
+Table table(0, 0, 0, 2.0);
 
 #define TARGET_FPS 60
 #define FRAME_DELAY (1000 / TARGET_FPS)
@@ -95,6 +97,7 @@ void display() {
     {
         cubes[i].draw();
     }
+    table.draw();
     glFlush();
 }
 
@@ -138,7 +141,7 @@ void update(int value) {
 
 void initializeScene()
 {
-    for(int i = 0; i < 5000; i++)
+    for(int i = 0; i < 50; i++)
     {
         cubes.push_back(Cube::createRandomCube());
     }
