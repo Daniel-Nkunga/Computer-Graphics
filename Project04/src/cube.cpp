@@ -19,9 +19,9 @@ float GRAVITY  = 0.1f;
 int SPAWN_RADIUS = 15;
 
 // Texture mapping variables (shared via extern in cube.hpp)
-int xdim, ydim;
+int xdim, ydim;// add with the other globals
 unsigned char *texture;
-
+GLuint textureID = 0;
 
 Cube::Cube(float _midx, float _midy, float _midz, float _size)
 {
@@ -39,7 +39,7 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
 
 void Cube::draw()
 {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     // Each face is 1/6th of the sprite strip width
     float w = 1.0f / 6.0f;
@@ -179,10 +179,13 @@ void init_texture(char *name, unsigned char *&texture, int &xdim, int &ydim)
    texture = (unsigned char *)malloc((unsigned int)(xdim*ydim*3));
    int index = 0;
    for (int y = 0; y < ydim; y++)
-      for (int x = 0; x < xdim; x++)
-      {
-         texture[index++] = (unsigned char)(image.R.Data2D[y][x]);
-         texture[index++] = (unsigned char)(image.G.Data2D[y][x]);
-         texture[index++] = (unsigned char)(image.B.Data2D[y][x]);
-      }
+        for (int x = 0; x < xdim; x++)
+        {
+            texture[index++] = (unsigned char)(image.R.Data2D[y][x]);
+            texture[index++] = (unsigned char)(image.G.Data2D[y][x]);
+            texture[index++] = (unsigned char)(image.B.Data2D[y][x]);
+        }
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
 }

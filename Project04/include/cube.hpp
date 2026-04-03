@@ -13,6 +13,7 @@ using namespace std;
 // Texture mapping variables (defined in cube.cpp, shared via extern)
 extern int xdim, ydim;
 extern unsigned char *texture;
+extern GLuint textureID;
 
 void init_texture(char *name, unsigned char *&texture, int &xdim, int &ydim);
 
