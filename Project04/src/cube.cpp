@@ -37,6 +37,15 @@ Cube::Cube(float _midx, float _midy, float _midz, float _size)
 
 }
 
+StationaryCube::StationaryCube(float _midx, float _midy, float _midz, float _size,
+                                float _rotationX, float _rotationY, float _rotationZ)
+    : Cube(_midx, _midy, _midz, _size)
+{
+    rotationX = _rotationX;
+    rotationY = _rotationY;
+    rotationZ = _rotationZ;
+}
+
 void Cube::draw()
 {
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -48,6 +57,7 @@ void Cube::draw()
     glTranslatef(midx, midy, midz);
     glRotatef(rotationX, 1.0f, 0.0f, 0.0f);
     glRotatef(rotationY, 0.0f, 1.0f, 0.0f);
+    glRotatef(rotationZ, 0.0f, 0.0f, 1.0f);
     glTranslatef(-midx, -midy, -midz);
 
     // Define 8 vertices

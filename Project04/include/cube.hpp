@@ -21,7 +21,7 @@ class Cube
 {
 protected:
     float midx, midy, midz, size;
-    float rotationX, thetaX, rotationY, thetaY;
+    float rotationX, thetaX, rotationY, thetaY, rotationZ;
     float gravityModifier;
 
     void applyGravity();
@@ -38,6 +38,7 @@ class StationaryCube : public Cube
 {
 public:
     using Cube::Cube;
+    StationaryCube(float _midx, float _midy, float _midz, float _size, float _rotationX, float _rotationY, float _rotationZ);
     void update() override;
 };
 
