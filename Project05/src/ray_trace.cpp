@@ -14,7 +14,7 @@
 #endif
 
 // Include ray tracing and phong shading code
-#include "ray_classes.h"
+#include <ray_classes.h>
 
 // Global variables
 #define XDIM 800
