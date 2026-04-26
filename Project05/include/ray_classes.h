@@ -8,6 +8,7 @@
 //          Vector3D - store XYZ vector coordinates.
 //          Ray3D - store ray (point and vector).
 //          Sphere3D - store sphere (point and radius).
+//          Cone3D - store cone (apex, axis, half-angle, height).
 //          Phong - implement Phong shading.
 //
 //    These classes have no private variables so
@@ -16,6 +17,7 @@
 //    
 // Author:  John Gauch
 // Date:    Spring 2019
+// Updated: Added Cone3D class
 //----------------------------------------------
 #include <iostream>
 #include <cmath>
@@ -91,6 +93,33 @@ class Sphere3D
       void set(Point3D p, float r) ;
       void set(Point3D p, Vector3D m, float r) ;
       string print() ;
+      bool get_intersection(Ray3D ray, Point3D &point, Vector3D &normal);
+};
+
+//----------------------------------------------
+// Cone3D: An infinite double cone clipped to [0, height] along the axis.
+//   apex      - the tip of the cone
+//   axis      - unit vector pointing along the cone's central axis
+//   half_angle- half-angle (radians) between axis and surface
+//   height    - how far along the axis the cone extends (0 = apex end)
+//
+// The cone surface satisfies:
+//   dot(P - apex, axis)^2 = cos^2(half_angle) * |P - apex|^2
+// where P is a point on the surface.
+//----------------------------------------------
+class Cone3D
+{
+   public:
+      Point3D  apex;        // tip of the cone
+      Vector3D axis;        // unit direction of cone axis
+      float    half_angle;  // half-angle in radians
+      float    height;      // height along axis (must be > 0)
+
+      // Setters
+      void set(Point3D a, Vector3D ax, float angle, float h);
+      string print();
+
+      // Ray intersection: returns true and fills point/normal on hit
       bool get_intersection(Ray3D ray, Point3D &point, Vector3D &normal);
 };
 

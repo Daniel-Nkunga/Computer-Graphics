@@ -270,6 +270,147 @@ bool Sphere3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal)
 }
 
 //----------------------------------------------
+void Cone3D::set(Point3D a, Vector3D ax, float angle, float h)
+{
+   apex       = a;
+   axis       = ax;
+   axis.normalize();
+   half_angle = angle;
+   height     = h;
+}
+
+//----------------------------------------------
+string Cone3D::print()
+{
+   cout << "apex=";
+   apex.print();
+   cout << " axis=";
+   axis.print();
+   cout << " half_angle=" << half_angle
+        << " height=" << height << endl;
+   return "";
+}
+
+//----------------------------------------------
+// Cone3D::get_intersection
+//
+// Derivation:
+//   Let k  = cos^2(half_angle)  (a scalar precomputed once)
+//   Let oc = ray.point - apex   (vector from apex to ray origin)
+//   Let d  = ray.dir            (unit ray direction)
+//
+//   A point X = ray.origin + t*d lies on the infinite cone surface when:
+//     dot(X - apex, axis)^2 = k * dot(X - apex, X - apex)
+//
+//   Expanding with P(t) = oc + t*d:
+//     dot(P, axis)^2 = k * dot(P, P)
+//
+//   Let:
+//     dA  = dot(d,  axis)
+//     ocA = dot(oc, axis)
+//
+//   Then:
+//     A_coef = dA^2  - k * dot(d,  d)
+//     B_coef = 2*(dA*ocA - k * dot(d, oc))
+//     C_coef = ocA^2 - k * dot(oc, oc)
+//
+//   Solve quadratic; accept roots where:
+//     (a) t > 0  (in front of ray origin)
+//     (b) 0 <= dot(hit - apex, axis) <= height  (within cone height)
+//
+//   The outward surface normal at a hit point P is:
+//     N = (P - apex) - axis * dot(P - apex, axis) / cos^2(half_angle)
+//   (gradient of the cone implicit function), then normalized.
+//----------------------------------------------
+bool Cone3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal)
+{
+   // Precompute k = cos^2(half_angle)
+   float cosA = cos(half_angle);
+   float k    = cosA * cosA;
+
+   // oc = ray origin - apex
+   Vector3D oc;
+   oc.set(ray.point.px - apex.px,
+          ray.point.py - apex.py,
+          ray.point.pz - apex.pz);
+
+   // Dot products needed for quadratic coefficients
+   float dA  = ray.dir.dot(axis);
+   float ocA = oc.dot(axis);
+   float dd  = ray.dir.dot(ray.dir);   // 1.0 if dir is normalized
+   float doc = ray.dir.dot(oc);
+   float ooc = oc.dot(oc);
+
+   // Quadratic A, B, C
+   float A = dA*dA  - k * dd;
+   float B = 2.0f * (dA*ocA - k * doc);
+   float C = ocA*ocA - k * ooc;
+
+   float discriminant = B*B - 4.0f*A*C;
+   if (discriminant < 0)
+      return false;
+
+   float sqrtDisc = sqrt(discriminant);
+   float root1 = (-B - sqrtDisc) / (2.0f * A);
+   float root2 = (-B + sqrtDisc) / (2.0f * A);
+
+   // Helper lambda: check whether t gives a valid (in-height) cone hit
+   // Returns the along-axis distance so caller can range-check it.
+   auto valid_hit = [&](float t, float &along) -> bool
+   {
+      if (t < 1e-4f) return false;          // behind or at ray origin
+      Point3D hp = ray.get_sample(t);
+      Vector3D ap;
+      ap.set(hp.px - apex.px, hp.py - apex.py, hp.pz - apex.pz);
+      along = ap.dot(axis);
+      return (along >= 0.0f && along <= height);
+   };
+
+   // Pick the smallest valid t
+   float solution = -1.0f;
+   float along    =  0.0f;
+   float a1, a2;
+   bool ok1 = valid_hit(root1, a1);
+   bool ok2 = valid_hit(root2, a2);
+
+   if (ok1 && ok2)
+   {
+      solution = (root1 <= root2) ? root1 : root2;
+      along    = (root1 <= root2) ? a1    : a2;
+   }
+   else if (ok1) { solution = root1; along = a1; }
+   else if (ok2) { solution = root2; along = a2; }
+   else          { return false; }
+
+   // Compute intersection point
+   point = ray.get_sample(solution);
+
+   // Compute outward normal
+   // N = (point - apex) - axis * along / k
+   // Then normalize.
+   Vector3D ap;
+   ap.set(point.px - apex.px,
+          point.py - apex.py,
+          point.pz - apex.pz);
+
+   Vector3D axisScaled = axis;
+   axisScaled.mult(along / k);
+
+   normal = ap;
+   normal.sub(axisScaled);
+
+   // Guard: at the apex the normal length collapses to zero (degenerate point).
+   // Return false so callers treat it as a miss rather than getting NaN normals.
+   float len = sqrt(normal.vx*normal.vx + normal.vy*normal.vy + normal.vz*normal.vz);
+   if (len < 1e-6f)
+      return false;
+
+   normal.normalize();
+
+   return true;
+}
+
+//----------------------------------------------
 Phong::Phong()
 {
    CameraPos.set(0,0,0);
