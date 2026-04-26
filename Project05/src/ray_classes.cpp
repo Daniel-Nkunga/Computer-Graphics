@@ -411,6 +411,239 @@ bool Cone3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal)
 }
 
 //----------------------------------------------
+// Cube3D::set
+//----------------------------------------------
+void Cube3D::set(Point3D c, float hs)
+{
+   center    = c;
+   half_size = hs;
+}
+
+//----------------------------------------------
+string Cube3D::print()
+{
+   cout << "center=";
+   center.print();
+   cout << " half_size=" << half_size << endl;
+   return "";
+}
+
+//----------------------------------------------
+// Cube3D::get_intersection
+//
+// Uses the slab method: intersect the ray with the three pairs of
+// axis-aligned planes (x, y, z slabs) that bound the box.
+// The ray hits the box when all three slab intervals overlap.
+// The entry normal is the face whose tmin is largest.
+//----------------------------------------------
+bool Cube3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal)
+{
+   float ox = ray.point.px, oy = ray.point.py, oz = ray.point.pz;
+   float dx = ray.dir.vx,   dy = ray.dir.vy,   dz = ray.dir.vz;
+
+   float minx = center.px - half_size,  maxx = center.px + half_size;
+   float miny = center.py - half_size,  maxy = center.py + half_size;
+   float minz = center.pz - half_size,  maxz = center.pz + half_size;
+
+   float tmin = -1e30f, tmax = 1e30f;
+   int   normal_axis = 0;
+   float normal_sign = 1.0f;
+
+   // X slab
+   if (fabs(dx) > 1e-8f)
+   {
+      float t1 = (minx - ox) / dx;
+      float t2 = (maxx - ox) / dx;
+      float sign = -1.0f;
+      if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; sign = 1.0f; }
+      if (t1 > tmin) { tmin = t1; normal_axis = 0; normal_sign = sign; }
+      if (t2 < tmax) tmax = t2;
+   }
+   else if (ox < minx || ox > maxx) return false;
+
+   // Y slab
+   if (fabs(dy) > 1e-8f)
+   {
+      float t1 = (miny - oy) / dy;
+      float t2 = (maxy - oy) / dy;
+      float sign = -1.0f;
+      if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; sign = 1.0f; }
+      if (t1 > tmin) { tmin = t1; normal_axis = 1; normal_sign = sign; }
+      if (t2 < tmax) tmax = t2;
+   }
+   else if (oy < miny || oy > maxy) return false;
+
+   // Z slab
+   if (fabs(dz) > 1e-8f)
+   {
+      float t1 = (minz - oz) / dz;
+      float t2 = (maxz - oz) / dz;
+      float sign = -1.0f;
+      if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; sign = 1.0f; }
+      if (t1 > tmin) { tmin = t1; normal_axis = 2; normal_sign = sign; }
+      if (t2 < tmax) tmax = t2;
+   }
+   else if (oz < minz || oz > maxz) return false;
+
+   if (tmax < tmin || tmax < 1e-4f) return false;
+   float t = (tmin > 1e-4f) ? tmin : tmax;
+   if (t < 1e-4f) return false;
+
+   point = ray.get_sample(t);
+
+   if      (normal_axis == 0) normal.set(normal_sign, 0, 0);
+   else if (normal_axis == 1) normal.set(0, normal_sign, 0);
+   else                       normal.set(0, 0, normal_sign);
+
+   return true;
+}
+
+//----------------------------------------------
+// Cylinder3D::set
+//----------------------------------------------
+void Cylinder3D::set(Point3D c, Vector3D ax, float r, float h)
+{
+   center = c;
+   axis   = ax;
+   axis.normalize();
+   radius = r;
+   height = h;
+}
+
+//----------------------------------------------
+string Cylinder3D::print()
+{
+   cout << "center=";
+   center.print();
+   cout << " axis=";
+   axis.print();
+   cout << " radius=" << radius << " height=" << height << endl;
+   return "";
+}
+
+//----------------------------------------------
+// Cylinder3D::get_intersection
+//
+// An infinite cylinder around 'axis' through 'center' satisfies:
+//   |oc - dot(oc,axis)*axis|^2 = radius^2
+// where oc = P - center.
+//
+// Expanding P = ray.origin + t*ray.dir gives a quadratic in t.
+// We then check both roots against the height bounds [-h/2, +h/2]
+// along the axis, and also test the two flat end caps.
+//----------------------------------------------
+bool Cylinder3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal)
+{
+   // oc = ray origin - cylinder center
+   Vector3D oc;
+   oc.set(ray.point.px - center.px,
+          ray.point.py - center.py,
+          ray.point.pz - center.pz);
+
+   float dA  = ray.dir.dot(axis);
+   float ocA = oc.dot(axis);
+
+   // Components perpendicular to axis
+   Vector3D dPerp  = ray.dir;
+   Vector3D axTmp  = axis; axTmp.mult(dA);
+   dPerp.sub(axTmp);
+
+   Vector3D ocPerp = oc;
+   Vector3D axTmp2 = axis; axTmp2.mult(ocA);
+   ocPerp.sub(axTmp2);
+
+   float A = dPerp.dot(dPerp);
+   float B = 2.0f * ocPerp.dot(dPerp);
+   float C = ocPerp.dot(ocPerp) - radius * radius;
+
+   float best_t  = -1.0f;
+   int   hit_type = 0;  // 1 = side, 2 = bottom cap, 3 = top cap
+
+   // --- Side surface ---
+   float disc = B*B - 4.0f*A*C;
+   if (fabs(A) > 1e-8f && disc >= 0.0f)
+   {
+      float sqrtDisc = sqrt(disc);
+      float t1 = (-B - sqrtDisc) / (2.0f * A);
+      float t2 = (-B + sqrtDisc) / (2.0f * A);
+
+      for (int i = 0; i < 2; i++)
+      {
+         float t = (i == 0) ? t1 : t2;
+         if (t < 1e-4f) continue;
+         Point3D  hp = ray.get_sample(t);
+         Vector3D cp;
+         cp.set(hp.px - center.px, hp.py - center.py, hp.pz - center.pz);
+         float along = cp.dot(axis);
+         if (fabs(along) <= height * 0.5f)
+         {
+            if (best_t < 0 || t < best_t) { best_t = t; hit_type = 1; }
+         }
+      }
+   }
+
+   // --- End caps ---
+   // Cap normal direction: axis or -axis
+   float half_h = height * 0.5f;
+   for (int cap = 0; cap < 2; cap++)
+   {
+      // cap==0 -> bottom (-half_h along axis), cap==1 -> top (+half_h)
+      float sign  = (cap == 0) ? -1.0f : 1.0f;
+      float capD  = sign * half_h;  // signed distance along axis from center
+
+      // Plane: dot(P - center, axis) = capD
+      // => dot(ray.origin + t*ray.dir - center, axis) = capD
+      // => ocA + t*dA = capD => t = (capD - ocA) / dA
+      if (fabs(dA) < 1e-8f) continue;
+      float t = (capD - ocA) / dA;
+      if (t < 1e-4f) continue;
+
+      Point3D hp = ray.get_sample(t);
+      // Check radius
+      Vector3D cp;
+      cp.set(hp.px - center.px, hp.py - center.py, hp.pz - center.pz);
+      Vector3D axTmpCap = axis; axTmpCap.mult(cp.dot(axis));
+      cp.sub(axTmpCap);
+      if (cp.dot(cp) <= radius * radius)
+      {
+         if (best_t < 0 || t < best_t)
+         {
+            best_t   = t;
+            hit_type = (cap == 0) ? 2 : 3;
+         }
+      }
+   }
+
+   if (best_t < 0) return false;
+
+   point = ray.get_sample(best_t);
+
+   if (hit_type == 1)
+   {
+      // Side normal: radial component from axis
+      Vector3D cp;
+      cp.set(point.px - center.px, point.py - center.py, point.pz - center.pz);
+      Vector3D axProj = axis;
+      axProj.mult(cp.dot(axis));
+      cp.sub(axProj);
+      cp.normalize();
+      normal = cp;
+   }
+   else if (hit_type == 2)
+   {
+      // Bottom cap: normal points opposite to axis
+      normal.set(-axis.vx, -axis.vy, -axis.vz);
+   }
+   else
+   {
+      // Top cap: normal points along axis
+      normal = axis;
+   }
+
+   return true;
+}
+
+//----------------------------------------------
 Phong::Phong()
 {
    CameraPos.set(0,0,0);

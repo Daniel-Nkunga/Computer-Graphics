@@ -30,10 +30,21 @@ cone: src/cone.cpp
 	$(CC) -o cone -I include -I . src/cone.cpp $(SHARED) $(LIB)
 	./cone
 
-all: src/ray_trace.cpp src/ray_trace2.cpp src/ray_trace3.cpp
+cube: src/cube.cpp
+	$(CC) -o cube -I include -I . src/cube.cpp $(SHARED) $(LIB)
+	./cube
+
+cylinder: src/cylinder.cpp
+	$(CC) -o cylinder -I include -I . src/cylinder.cpp $(SHARED) $(LIB)
+	./cylinder
+
+all: src/ray_trace.cpp src/ray_trace2.cpp src/ray_trace3.cpp src/cone.cpp src/cube.cpp src/cylinder.cpp
 	$(CC) -o ray_trace -I include -I . src/ray_trace.cpp $(SHARED) $(LIB)
 	$(CC) -o ray_trace2 -I include -I . src/ray_trace2.cpp $(SHARED) $(LIB)
 	$(CC) -o ray_trace3 -I include -I . src/ray_trace3.cpp $(SHARED) $(LIB)
+	$(CC) -o cone -I include -I . src/cone.cpp $(SHARED) $(LIB)
+	$(CC) -o cube -I include -I . src/cube.cpp $(SHARED) $(LIB)
+	$(CC) -o cylinder -I include -I . src/cylinder.cpp $(SHARED) $(LIB)
 
 clean:
-	/bin/rm -f ray_trace ray_trace2 ray_trace3 cone
+	/bin/rm -f ray_trace ray_trace2 ray_trace3 cone cube cylinder
