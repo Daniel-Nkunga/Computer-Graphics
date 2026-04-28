@@ -8,6 +8,17 @@ CC = g++ -Wall -Wno-deprecated-declarations
 
 SHARED = src/ray_classes.cpp
 
+all: src/ray_trace.cpp src/ray_trace2.cpp src/ray_trace3.cpp src/cone.cpp src/cube.cpp src/cylinder.cpp
+# 	$(CC) -o ray_trace -I include -I . src/ray_trace.cpp $(SHARED) $(LIB)
+# 	$(CC) -o ray_trace2 -I include -I . src/ray_trace2.cpp $(SHARED) $(LIB)
+# 	$(CC) -o ray_trace3 -I include -I . src/ray_trace3.cpp $(SHARED) $(LIB)
+	$(CC) -o cone -I include -I . src/cone.cpp $(SHARED) $(LIB)
+	$(CC) -o cube -I include -I . src/cube.cpp $(SHARED) $(LIB)
+	$(CC) -o cylinder -I include -I . src/cylinder.cpp $(SHARED) $(LIB)
+	$(CC) -o glass -I include -I . src/glass.cpp $(SHARED) $(LIB)
+	$(CC) -o mirror -I include -I . src/mirror.cpp $(SHARED) $(LIB)
+	./cone & ./cube & ./cylinder & ./glass & ./mirror
+
 ray_trace: src/ray_trace.cpp
 	$(CC) -o ray_trace -I include -I . src/ray_trace.cpp $(SHARED) $(LIB)
 	./ray_trace
@@ -45,14 +56,6 @@ glass: src/glass.cpp
 mirror: src/mirror.cpp
 	$(CC) -o mirror -I include -I . src/mirror.cpp $(SHARED) $(LIB)
 	./mirror
-
-all: src/ray_trace.cpp src/ray_trace2.cpp src/ray_trace3.cpp src/cone.cpp src/cube.cpp src/cylinder.cpp
-	$(CC) -o ray_trace -I include -I . src/ray_trace.cpp $(SHARED) $(LIB)
-	$(CC) -o ray_trace2 -I include -I . src/ray_trace2.cpp $(SHARED) $(LIB)
-	$(CC) -o ray_trace3 -I include -I . src/ray_trace3.cpp $(SHARED) $(LIB)
-	$(CC) -o cone -I include -I . src/cone.cpp $(SHARED) $(LIB)
-	$(CC) -o cube -I include -I . src/cube.cpp $(SHARED) $(LIB)
-	$(CC) -o cylinder -I include -I . src/cylinder.cpp $(SHARED) $(LIB)
 
 clean:
 	/bin/rm -f ray_trace ray_trace2 ray_trace3 cone cube cylinder
