@@ -155,6 +155,93 @@ class Cylinder3D
 };
 
 //----------------------------------------------
+// Glass3D: An infinite glass slab defined by a center point, a surface
+//   normal (perpendicular to the slab faces), and a thickness.
+//   The slab occupies the region between two parallel planes:
+//     dot(P - center, normal) = +/- thickness/2
+//
+//   Supports:
+//     - Snell's law refraction (index of refraction: ior)
+//     - Fresnel reflectance blend (reflect_amount)
+//     - Optional tint color applied to transmitted rays
+//
+//   get_intersection() returns the entry hit point and the outward normal.
+//   get_refracted_ray() returns the ray that exits the back face after
+//   refracting through both surfaces (entry and exit).
+//----------------------------------------------
+class Glass3D
+{
+ public:
+   Point3D  center;    // center of the slab
+   Vector3D normal;    // outward normal of the front face (unit vector)
+   float    thickness; // total thickness of the slab
+   float    ior;       // index of refraction (e.g. 1.5 for glass)
+   ColorRGB tint;      // multiplicative color tint (255,255,255 = clear)
+   float    reflect_amount; // 0..1 Fresnel reflectance weight at normal incidence
+
+   void set(Point3D c, Vector3D n, float thick, float index,
+            ColorRGB color, float refl);
+   string print();
+
+   // Returns true if the ray hits the front face of the slab.
+   // point  = hit point on the front face
+   // normal_out = outward normal of the front face (towards the ray origin)
+   bool get_intersection(Ray3D ray, Point3D &point, Vector3D &normal_out);
+
+   // Given a ray that has already hit the front face (at entry_point),
+   // computes the refracted ray exiting the back face.
+   // Returns false if total internal reflection occurs.
+   // exit_point = where the refracted ray exits the back face
+   // refracted  = the outgoing refracted ray direction
+   bool get_refracted_ray(Ray3D ray, Point3D entry_point,
+                          Point3D &exit_point, Ray3D &refracted);
+
+   // Schlick Fresnel approximation: returns reflectance [0..1]
+   float fresnel(Ray3D ray);
+};
+
+//----------------------------------------------
+// Mirror3D: A finite, flat rectangular mirror.
+//
+//   center    - center point of the mirror surface
+//   normal    - outward surface normal (unit vector, faces towards viewer)
+//   up        - "up" direction within the mirror plane (unit vector)
+//   width     - full width of the mirror (along the axis perpendicular to
+//               both normal and up)
+//   height    - full height of the mirror (along the up axis)
+//
+// get_intersection() finds the ray/plane hit and confirms it lies within
+//   the finite rectangle.  Returns the hit point and the outward normal
+//   (oriented towards the ray origin so that shading works correctly).
+//
+// get_reflected_ray() constructs the perfectly-reflected ray from a hit
+//   point and the surface normal using r = d - 2*(d·n)*n .
+//----------------------------------------------
+class Mirror3D
+{
+   public:
+      Point3D  center;
+      Vector3D normal;   // outward normal (unit)
+      Vector3D up;       // "up" within the mirror plane (unit)
+      float    width;    // full width
+      float    height;   // full height
+
+      void set(Point3D c, Vector3D n, Vector3D u, float w, float h);
+      string print();
+
+      // Returns true when the ray hits the finite mirror rectangle.
+      // point      = hit point on the mirror surface
+      // normal_out = surface normal oriented toward the ray origin
+      bool get_intersection(Ray3D ray, Point3D &point, Vector3D &normal_out);
+
+      // Given a ray that has already been confirmed to hit the mirror (at
+      // hit_point with outward normal hit_normal), returns the perfectly
+      // reflected ray that should be traced next.
+      void get_reflected_ray(Ray3D ray, Point3D hit_point,
+                             Vector3D hit_normal, Ray3D &reflected);
+};
+
+//----------------------------------------------
 class Phong
 {
  public:

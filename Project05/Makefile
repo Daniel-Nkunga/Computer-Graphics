@@ -38,6 +38,14 @@ cylinder: src/cylinder.cpp
 	$(CC) -o cylinder -I include -I . src/cylinder.cpp $(SHARED) $(LIB)
 	./cylinder
 
+glass: src/glass.cpp
+	$(CC) -o glass -I include -I . src/glass.cpp $(SHARED) $(LIB)
+	./glass
+
+mirror: src/mirror.cpp
+	$(CC) -o mirror -I include -I . src/mirror.cpp $(SHARED) $(LIB)
+	./mirror
+
 all: src/ray_trace.cpp src/ray_trace2.cpp src/ray_trace3.cpp src/cone.cpp src/cube.cpp src/cylinder.cpp
 	$(CC) -o ray_trace -I include -I . src/ray_trace.cpp $(SHARED) $(LIB)
 	$(CC) -o ray_trace2 -I include -I . src/ray_trace2.cpp $(SHARED) $(LIB)

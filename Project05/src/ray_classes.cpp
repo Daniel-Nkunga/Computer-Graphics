@@ -644,6 +644,294 @@ bool Cylinder3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal)
 }
 
 //----------------------------------------------
+void Glass3D::set(Point3D c, Vector3D n, float thick, float index,
+                  ColorRGB color, float refl)
+{
+   center    = c;
+   normal    = n;
+   normal.normalize();
+   thickness = thick;
+   ior       = index;
+   tint      = color;
+   reflect_amount = refl;
+}
+
+//----------------------------------------------
+string Glass3D::print()
+{
+   cout << "Glass center=";
+   center.print();
+   cout << " normal=";
+   normal.print();
+   cout << " thickness=" << thickness
+        << " ior=" << ior << endl;
+   return "";
+}
+
+//----------------------------------------------
+// Schlick Fresnel approximation.
+// R0 = ((n1-n2)/(n1+n2))^2, here n1=1 (air), n2=ior
+// R  = R0 + (1-R0)*(1-cos(theta))^5
+float Glass3D::fresnel(Ray3D ray)
+{
+   // cos(theta) = |dot(ray.dir, normal)| (both normalized)
+   Vector3D n = normal;
+   float cosI = fabs(ray.dir.dot(n));
+   float n1 = 1.0f, n2 = ior;
+   float r0 = (n1 - n2) / (n1 + n2);
+   r0 = r0 * r0;
+   float f = r0 + (1.0f - r0) * pow(1.0f - cosI, 5.0f);
+   // Blend with artist-controlled reflect_amount
+   return reflect_amount + (1.0f - reflect_amount) * f;
+}
+
+//----------------------------------------------
+// Intersect ray with the front face plane of the slab.
+// Front face: dot(P - center, normal) = +thickness/2
+// Back  face: dot(P - center, normal) = -thickness/2
+bool Glass3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal_out)
+{
+   // Plane equation for front face: dot(P - front_center, normal) = 0
+   // where front_center is shifted by +thickness/2 along normal
+   float half_t = thickness * 0.5f;
+
+   // dot(ray.origin + t*ray.dir - center - half_t*normal, normal) = 0
+   // => t = (half_t + dot(center - ray.origin, normal)) / dot(ray.dir, normal)
+   float denom = ray.dir.dot(normal);
+   if (fabs(denom) < 1e-8f) return false; // ray parallel to slab
+
+   Vector3D oc;
+   oc.set(center.px - ray.point.px,
+          center.py - ray.point.py,
+          center.pz - ray.point.pz);
+   float ocN = oc.dot(normal);
+
+   // t for front face (farther from center in normal direction)
+   float t_front = (ocN + half_t) / denom;
+   // t for back face
+   float t_back  = (ocN - half_t) / denom;
+
+   // Ensure t_front < t_back (ray may enter from either side)
+   if (t_front > t_back) { float tmp = t_front; t_front = t_back; t_back = tmp; }
+
+   if (t_front < 1e-4f) return false; // slab is behind the ray
+
+   point = ray.get_sample(t_front);
+
+   // Outward normal should face towards ray origin
+   if (denom < 0)
+      normal_out = normal; // ray entering from front
+   else
+   {
+      normal_out.set(-normal.vx, -normal.vy, -normal.vz); // ray entering from back
+   }
+   return true;
+}
+
+//----------------------------------------------
+// Refract through the slab using Snell's law.
+// 1. Refract at entry surface (air -> glass, n1=1, n2=ior)
+// 2. March the refracted ray to the exit surface
+// 3. Refract again at exit surface (glass -> air, n1=ior, n2=1)
+bool Glass3D::get_refracted_ray(Ray3D ray, Point3D entry_point,
+                                 Point3D &exit_point, Ray3D &refracted)
+{
+   // --- Refraction helper: Snell's law vector form ---
+   // n = surface normal pointing into the medium the ray is leaving
+   // i = incident ray direction (unit)
+   // eta = n1/n2
+   // Returns refracted direction, or sets ok=false on TIR
+   auto refract = [](Vector3D i, Vector3D n, float eta, Vector3D &t_dir, bool &ok)
+   {
+      float cosI = -(i.dot(n));
+      float sin2T = eta * eta * (1.0f - cosI * cosI);
+      if (sin2T > 1.0f) { ok = false; return; } // total internal reflection
+      float cosT = sqrt(1.0f - sin2T);
+      // t = eta*i + (eta*cosI - cosT)*n
+      t_dir.set(eta * i.vx + (eta * cosI - cosT) * n.vx,
+                eta * i.vy + (eta * cosI - cosT) * n.vy,
+                eta * i.vz + (eta * cosI - cosT) * n.vz);
+      t_dir.normalize();
+      ok = true;
+   };
+
+   bool ok;
+   Vector3D entry_normal;
+   // Normal at entry: face towards incoming ray
+   float denom = ray.dir.dot(normal);
+   if (denom < 0)
+      entry_normal = normal;             // ray from front
+   else
+      entry_normal.set(-normal.vx, -normal.vy, -normal.vz); // ray from back
+
+   // Refract entering glass
+   Vector3D refr1_dir;
+   refract(ray.dir, entry_normal, 1.0f / ior, refr1_dir, ok);
+   if (!ok) return false;
+
+   // March refracted ray to the back face
+   // back face plane: dot(P - center, normal) = -thickness/2  (from front)
+   // But use the same-signed normal as entry face's opposite
+   float half_t = thickness * 0.5f;
+   // Ray inside glass starts at entry_point going in refr1_dir
+   Ray3D inside_ray;
+   inside_ray.set(entry_point, refr1_dir);
+
+   // Intersect inside_ray with the exit plane
+   // exit plane normal points OUT of glass on the far side = -entry_normal
+   Vector3D exit_normal;
+   exit_normal.set(-entry_normal.vx, -entry_normal.vy, -entry_normal.vz);
+
+   float denom2 = refr1_dir.dot(exit_normal);
+   if (fabs(denom2) < 1e-8f) return false;
+
+   Vector3D oc2;
+   oc2.set(center.px - entry_point.px,
+           center.py - entry_point.py,
+           center.pz - entry_point.pz);
+   // Exit plane: dot(P - center, -entry_normal) = half_t
+   // => dot(entry_point + t*refr1 - center, exit_normal) = half_t
+   // => t = (half_t - oc2 . exit_normal) / (refr1 . exit_normal)
+   //    Note: oc2 = center - entry_point, so dot(entry_point-center, exit_normal) = -oc2.exit_normal
+   float t_exit = (half_t + oc2.dot(entry_normal)) / denom2;
+   if (t_exit < 1e-4f) return false;
+
+   exit_point = inside_ray.get_sample(t_exit);
+
+   // Refract exiting glass: n1=ior, n2=1, normal = exit_normal (pointing out)
+   // The exit_normal points away from center of slab on far side
+   Vector3D refr2_dir;
+   refract(refr1_dir, exit_normal, ior / 1.0f, refr2_dir, ok);
+   if (!ok) return false;
+
+   refracted.set(exit_point, refr2_dir);
+   return true;
+}
+
+//----------------------------------------------
+// Mirror3D::set
+//----------------------------------------------
+void Mirror3D::set(Point3D c, Vector3D n, Vector3D u, float w, float h)
+{
+   center = c;
+   normal = n;
+   normal.normalize();
+   up = u;
+   up.normalize();
+   width  = w;
+   height = h;
+}
+
+//----------------------------------------------
+string Mirror3D::print()
+{
+   cout << "Mirror center=";
+   center.print();
+   cout << " normal=";
+   normal.print();
+   cout << " up=";
+   up.print();
+   cout << " width=" << width << " height=" << height << endl;
+   return "";
+}
+
+//----------------------------------------------
+// Mirror3D::get_intersection
+//
+// Step 1: Ray / infinite-plane intersection.
+//   The mirror plane satisfies  dot(P - center, normal) = 0.
+//   Substituting P = ray.origin + t * ray.dir:
+//     t = dot(center - ray.origin, normal) / dot(ray.dir, normal)
+//
+// Step 2: Finite-rectangle test.
+//   Project the hit point onto the two in-plane axes:
+//     right = normal x up  (computed on the fly)
+//     up    (stored field)
+//   The hit is inside the rectangle when:
+//     |dot(offset, right)| <= width/2   AND
+//     |dot(offset, up)|    <= height/2
+//
+// Step 3: Orient the returned normal toward the incoming ray so Phong
+//   shading receives a consistent facing normal regardless of which side
+//   of the mirror the ray comes from.
+//----------------------------------------------
+bool Mirror3D::get_intersection(Ray3D ray, Point3D &point, Vector3D &normal_out)
+{
+   // Step 1: plane intersection
+   float denom = ray.dir.dot(normal);
+   if (fabs(denom) < 1e-8f) return false;  // ray parallel to mirror plane
+
+   Vector3D oc;
+   oc.set(center.px - ray.point.px,
+          center.py - ray.point.py,
+          center.pz - ray.point.pz);
+
+   float t = oc.dot(normal) / denom;
+   if (t < 1e-4f) return false;            // intersection is behind ray origin
+
+   // Step 2: finite-rectangle test
+   point = ray.get_sample(t);
+
+   Vector3D offset;
+   offset.set(point.px - center.px,
+              point.py - center.py,
+              point.pz - center.pz);
+
+   // "right" axis = normal cross up (gives the horizontal in-plane direction)
+   Vector3D right;
+   right.set(normal.vy * up.vz - normal.vz * up.vy,
+             normal.vz * up.vx - normal.vx * up.vz,
+             normal.vx * up.vy - normal.vy * up.vx);
+   right.normalize();
+
+   float u_coord = offset.dot(right);
+   float v_coord = offset.dot(up);
+
+   if (fabs(u_coord) > width  * 0.5f) return false;
+   if (fabs(v_coord) > height * 0.5f) return false;
+
+   // Step 3: orient normal toward the ray origin
+   if (denom < 0.0f)
+      normal_out = normal;                    // ray from the front face
+   else
+      normal_out.set(-normal.vx, -normal.vy, -normal.vz); // ray from back
+
+   return true;
+}
+
+//----------------------------------------------
+// Mirror3D::get_reflected_ray
+//
+// Perfect specular reflection using the standard formula:
+//   r = d - 2 * dot(d, n) * n
+// where d is the (unit) incoming direction and n is the outward normal
+// oriented toward the incoming ray.
+//
+// The reflected ray originates at hit_point (offset slightly along the
+// normal to avoid self-intersection) and travels in direction r.
+//----------------------------------------------
+void Mirror3D::get_reflected_ray(Ray3D ray, Point3D hit_point,
+                                  Vector3D hit_normal, Ray3D &reflected)
+{
+   // Compute reflection direction:  r = d - 2*(d·n)*n
+   float d_dot_n = ray.dir.dot(hit_normal);
+   Vector3D r_dir;
+   r_dir.set(ray.dir.vx - 2.0f * d_dot_n * hit_normal.vx,
+             ray.dir.vy - 2.0f * d_dot_n * hit_normal.vy,
+             ray.dir.vz - 2.0f * d_dot_n * hit_normal.vz);
+   r_dir.normalize();
+
+   // Offset origin slightly along the normal to prevent self-intersection
+   const float EPSILON = 1e-3f;
+   Point3D origin;
+   origin.set(hit_point.px + EPSILON * hit_normal.vx,
+              hit_point.py + EPSILON * hit_normal.vy,
+              hit_point.pz + EPSILON * hit_normal.vz);
+
+   reflected.set(origin, r_dir);
+}
+
+//----------------------------------------------
 Phong::Phong()
 {
    CameraPos.set(0,0,0);
